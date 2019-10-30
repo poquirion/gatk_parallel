@@ -9,4 +9,4 @@ scontrol show hostname ${SLURM_JOB_NODELIST} > run1/node_list_${SLURM_JOB_ID}
 
 for chr in  $chr/*bed*100; do echo $chr ;done  \
 | parallel --joblog run1/${chr}.log  --resume-failed  --jobs ${SLURM_CPUS_ON_NODE} --sshloginfile \
- run1/node_list_${SLURM_JOB_ID}  --workdir $PWD --env SLURM_TMPDIR   gatk_wrapper.sh
+ run1/node_list_${SLURM_JOB_ID}  --workdir $PWD --env _   gatk_wrapper.sh
