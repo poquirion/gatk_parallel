@@ -14,6 +14,8 @@ if [ $# -ne 1  ]; then
   exit 1
 fi
 
+#should be a list of variant input and a chr range file. perhaps chr and number of part to split the computation?
+
 # this should be made an option
 A1=`for i in /lustre04/scratch/wcheung/vcf/Immunoseq_CD/*gvcf.gz;do echo  " --variant $i \ ";done`;
 A2=`for i in /lustre04/scratch/wcheung/vcf/15a-CD_M_George/*gvcf.gz;do echo  " --variant $i \ ";done`;
