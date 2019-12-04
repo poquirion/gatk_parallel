@@ -6,24 +6,24 @@ CHUNKS=100
 range_per_chr=($( grep "chr[1-9XY][0-9]*\s"  $INPUT_DICT | sed 's/.*SN:chr\([0-9XY]\+\)\sLN:\([0-9]\+\).*/\1 \2/' ))
 
 # create one bed file per chr
-export BED_DIR=./beds
-mkdir -p $BED_DIR
+export INTERVAL_DIR=./intervals
+mkdir -p $INTERVAL_DIR
 
 for chr in {0..23}; do
    val=$((2*$chr))
    chr_range=(${range_per_chr[@]:$val:2})
 
-   BED_PATH=$BED_DIR/chr_${chr_range[0]}.bed
+   INTERVAL_PATH=$INTERVAL_DIR/chr_${chr_range[0]}
 
-   bed_range=$((${chr_range[1]}/$((CHUNKS-1))))
+   range=$((${chr_range[1]}/$((CHUNKS-1))))
    previous=1
-   rm $BED_PATH > /dev/null
-   for ((i="$bed_range" ; i<=${chr_range[1]} ; i+=$bed_range));do 
+   rm $INTERVAL_PATH 2> /dev/null
+   for ((i="$range" ; i<=${chr_range[1]} ; i+=$range));do 
        
-       echo ${chr_range[0]} $previous $i >> $BED_PATH
+       echo chr${chr_range[0]}:$previous-$i >> $INTERVAL_PATH
        previous=$i
    done    
-       echo ${chr_range[0]} $previous ${chr_range[1]} >> $BED_PATH
+       echo chr${chr_range[0]}:$previous-${chr_range[1]} >> $INTERVAL_PATH
    
 done
 
