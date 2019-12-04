@@ -2,7 +2,7 @@
 usage () {
 
 cat  << EOF
-  $0  <dict> <N hosts> <N CHUNKS> <output directory> [-c <chr1>[,<chrX>,...]]
+  $0  [-c <chr1>[,<chrX>,...]] [-V <vcf_list_file>[,<vcf_list_file>] ] <dict> <N hosts> <N CHUNKS> <output directory>
   <dict>:
     File In in the form of Homo_sapiens.GRCh38.dict found in
       /cvmfs/ref.mugqic/genomes/species/Homo_sapiens.GRCh38/genome
@@ -23,10 +23,13 @@ EOF
 }
 
 unset CHR_CONTSTRAINT
-while getopts ":c:rh" opt; do
+while getopts ":c:V:rh" opt; do
   case $opt in
     c)
       IFS=',' read -r -a CHR_CONTSTRAINT <<< "${OPTARG}"
+      ;;
+    V)
+      IFS=',' read -r -a VCF_LISTS <<< "${OPTARG}"
       ;;
     r)
       echo -r not implemented yet
@@ -71,6 +74,7 @@ make_inputs (){
     INPUT_DICT=$1
     CHUNKS=$2
     VCF_OUTPUT_DIR=$3
+    VCF_LIST=$4
 
     INTERVAL_DIR=$VCF_OUTPUT_DIR/intervals
     mkdir -p $INTERVAL_DIR
@@ -87,10 +91,10 @@ make_inputs (){
        rm $INTERVAL_PATH 2> /dev/null
        for ((i="$range" ; i<=${chr_range[1]} ; i+=$range));do
 
-           echo chr${chr_range[0]}:$previous-$i >> $INTERVAL_PATH
+           echo chr${chr_range[0]}:$previous-$i $VCF_LIST>> $INTERVAL_PATH
            previous=$i
        done
-           echo chr${chr_range[0]}:$previous-${chr_range[1]} >> $INTERVAL_PATH
+           echo chr${chr_range[0]}:$previous-${chr_range[1]} $VCF_LIST >> $INTERVAL_PATH
 
     done
 
@@ -99,7 +103,7 @@ make_inputs (){
 
 mkdir -p ${VCF_OUTPUT_DIR}
 
-make_inputs $INPUT_DICT $CHUNKS $VCF_OUTPUT_DIR
+make_inputs $INPUT_DICT $CHUNKS $VCF_OUTPUT_DIR ${VCF_LISTS[0]}
 
 rdn_str=$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c 13 ; echo '')
 master_name=vcf_merge_master_${rdn_str}

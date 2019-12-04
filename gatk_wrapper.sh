@@ -17,21 +17,19 @@ fi
 #should be a list of variant input and a chr range file. perhaps chr and number of part to split the computation?
 
 # this should be made an option
-l1=(/lustre04/scratch/wcheung/vcf/Immunoseq_CD/*gvcf.gz)
-l2=(/lustre04/scratch/wcheung/vcf/15a-CD_M_George/*gvcf.gz)
-A1=`for i in ${l1};do printf  " --variant $i ";done`;
-A2=`for i in ${l2};do printf  " --variant $i ";done`;
 
 module load mugqic/java/openjdk-jdk1.8.0_72
 module load mugqic/GenomeAnalysisTK/4.1.2.0
 
-CHR_RANGE_FILE=${1}
+CHR_RANGE=${1}
+VARIANT_FILE=${2}
+VCFS=$(for i in ${l1};do printf  " --variant $i ";done < ${sVARIANT_FILE})
 
-bed_file_name=$(basename "${CHR_RANGE_FILE}")
+# make VCF_OUTPUT_DIR an input ?, probably, not
 
 java -Djava.io.tmpdir=${SLURM_TMPDIR} -XX:ParallelGCThreads=1 \
  -Dsamjdk.buffer_size=8192 -Xmx4775M  \
  -jar ${GATK_JAR} \
  CombineGVCFs -R $MUGQIC_INSTALL_HOME/genomes/species/Homo_sapiens.GRCh37/genome/Homo_sapiens.GRCh37.fa \
- $A1 $A2 \
--O ${VCF_OUTPUT_DIR}/combinedCD.${bed_file_name}.gvcf -L ${CHR_RANGE_FILE}
+ $VCFS \
+-O ${VCF_OUTPUT_DIR}/combinedCD.${CHR_RANGE/:/-}.gvcf -L ${CHR_RANGE}
