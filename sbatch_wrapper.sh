@@ -118,7 +118,6 @@ for file in $INTERVAL_DIR/chr* ; do
         continue
       fi
     fi
-        echo $file
 
   sbatch_file=$(mktemp /tmp/gnu_parallel_XXXXXX.sh)
 
