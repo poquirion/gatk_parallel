@@ -2,7 +2,7 @@
 usage () {
 
 cat  << EOF
-  $0  <dict> <N hosts> <N CHUNKS> <output directory>
+  $0  <dict> <N hosts> <N CHUNKS> <output directory> [-c <chr1>[,<chrX>,...]]
   <dict>:
     File In in the form of Homo_sapiens.GRCh38.dict found in
       /cvmfs/ref.mugqic/genomes/species/Homo_sapiens.GRCh38/genome
@@ -13,12 +13,42 @@ cat  << EOF
       least 200 * <N host> so it make sense to use that code.
   <output directory>
     Where the log and the job is keep
+  -c
+    Only use chr in the coma separated list chr_1,chr_2,chr_X,...
   -r
     Rerun the job found in <output directory>
 
 
 EOF
 }
+
+unset CHR_CONTSTRAINT
+while getopts ":c:rh" opt; do
+  case $opt in
+    c)
+      IFS=',' read -r -a CHR_CONTSTRAINT <<< "${OPTARG}"
+      ;;
+    r)
+      echo -r not implemented yet
+      exit 0
+      ;;
+    h)
+      usage
+      exit 0
+      ;;
+    \?)
+      usage
+      exit 1
+      ;;
+    :)
+      echo "Option -$OPTARG requires an argument." >&2
+      usage
+      exit 1
+      ;;
+  esac
+done
+
+shift $((OPTIND-1))
 
 if [ $# -ne 4 ]; then
   usage
@@ -78,6 +108,14 @@ master_name=vcf_merge_master_${rdn_str}
 
 for file in $INTERVAL_DIR/chr* ; do
 
+    if [ -n "${CHR_CONTSTRAINT}" ]; then
+      chr=$(basename $file )
+      if ! [[ " ${CHR_CONTSTRAINT[@]} " =~ " ${chr} " ]]; then
+        continue
+      fi
+    fi
+        echo $file
+
   sbatch_file=$(mktemp /tmp/gnu_parallel_XXXXXX.sh)
 
 #Will test read to var maybe
@@ -99,8 +137,8 @@ EOF
 #        	--job-name=$master_name  --output=${master_name}.slurm-%j.out  parallel_wrapper.sh | awk '{print $NF}' )
 # echo $job_id submited
 
-  sbatch -A $RAP_ID  --time 1-00:00:00 --mem-per-cpu=4775  --ntasks-per-node=40 --nodes=$N_HOSTS \
-    --job-name=$master_name  --output=${master_name}.slurm-%j.out  $sbatch_file
+#   sbatch -A $RAP_ID  --time 1-00:00:00 --mem-per-cpu=4775  --ntasks-per-node=40 --nodes=$N_HOSTS \
+#     --job-name=$master_name  --output=${master_name}.slurm-%j.out  $sbatch_file
 
 
 done
