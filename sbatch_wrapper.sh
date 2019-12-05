@@ -24,10 +24,13 @@ EOF
 }
 
 unset CHR_CONTSTRAINT
-while getopts ":c:V:rh" opt; do
+while getopts ":c:V:re:h" opt; do
   case $opt in
     c)
       IFS=',' read -r -a CHR_CONTSTRAINT <<< "${OPTARG}"
+      ;;
+    e)
+      IFS=',' read -r -a EXCLUDED_CHR <<< "${OPTARG}"
       ;;
     V)
       IFS=',' read -r -a VCF_LISTS <<< "${OPTARG}"
@@ -51,6 +54,13 @@ while getopts ":c:V:rh" opt; do
       ;;
   esac
 done
+
+if [ -z $VCF_LISTS ]; then
+  echo -V option is not an option!
+  usage
+  exit 1
+fi
+
 
 shift $((OPTIND-1))
 
@@ -116,11 +126,14 @@ master_name=vcf_merge_master_${rdn_str}
 
 for file in $INTERVAL_DIR/chr* ; do
 
+    chr=$(basename $file )
     if [ -n "${CHR_CONTSTRAINT}" ]; then
-      chr=$(basename $file )
       if ! [[ " ${CHR_CONTSTRAINT[@]} " =~ " ${chr} " ]]; then
         continue
       fi
+    fi
+    if  [[ " ${EXCLUDED_CHR[@]} " =~ " ${chr} " ]]; then
+      continue
     fi
 
   sbatch_file=$(mktemp /tmp/gnu_parallel_XXXXXX.sh)
