@@ -15,6 +15,8 @@ cat  << EOF
     Where the log and the job is keep
   -c
     Only use chr in the coma separated list chr_1,chr_2,chr_X,...
+  -e
+    Exclude the chr in the coma separated list chr_1,chr_2,chr_X,...
   -r
     Rerun the job found in <output directory>
   -V 
