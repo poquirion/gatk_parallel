@@ -5,7 +5,7 @@
 usage () {
 
 cat  << EOF
-  $0  <path to interval file>
+  $0  <path to interval file> <path to vcf>
 EOF
 }
 
