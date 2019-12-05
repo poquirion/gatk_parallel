@@ -1,3 +1,3 @@
 # gatk_parallel
 
-That is just for you Tony :)
+Perform VCF merge with the help of gnu parallal on a SLURM HPC 
