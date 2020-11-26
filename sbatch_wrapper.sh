@@ -75,7 +75,7 @@ fi
 INPUT_DICT=$1
 CHUNKS=$3
 N_HOSTS=$2
-VCF_OUTPUT_DIR=$4
+export VCF_OUTPUT_DIR=$4
 
 SCRIPTPATH="$( cd "$(dirname "$0")" ; pwd -P )"
 
@@ -158,7 +158,7 @@ parallel --joblog $VCF_OUTPUT_DIR/job_${chr}.log  --resume-failed  --jobs \${SLU
 EOF
 
 
-  sbatch -A $RAP_ID  --time 01:00:00 --mem-per-cpu=4775  --ntasks-per-node=1 --nodes=$N_HOSTS \
+ sbatch -A $RAP_ID  --time 10:00:00 --mem=4775  --ntasks-per-node=40 --nodes=$N_HOSTS \
      --job-name=$master_name  --output=${VCF_OUTPUT_DIR}/${master_name}.slurm-%j.out  $sbatch_file
 
 
